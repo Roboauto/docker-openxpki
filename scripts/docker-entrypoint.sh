@@ -65,6 +65,9 @@ function create_config {
      chown root:root /etc/openxpki/customconfig.sh
      chmod 700 /etc/openxpki/customconfig.sh
      /etc/openxpki/customconfig.sh
+  elif [ -f "/customconfig.sh" ]; then
+     echo "Found custom config in root, executing it."
+     /customconfig.sh
   elif [ -f "/usr/share/doc/libopenxpki-perl/examples/sampleconfig.sh" ]; then
     echo "Found no custom customconfig.sh - using default sampleconfig.sh from /usr/share/doc/libopenxpki-perl/examples/sampleconfig.sh"
     /usr/share/doc/libopenxpki-perl/examples/sampleconfig.sh
