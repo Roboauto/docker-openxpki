@@ -3,10 +3,6 @@
 function fixPermissions {
 
   chown openxpki:openxpki /etc/openxpki -R
-  if [ -f "/etc/openxpki/customconfig.sh" ]; then
-    chmod 0700 /etc/openxpki/customconfig.sh
-    chown root:root /etc/openxpki/customconfig.sh
-  fi
   
   mkdir -p /var/log/apache2 && chown -R www-data:www-data /var/log/apache2 && chmod 0775 /var/log/apache2 && chmod 0664 /var/log/apache2/*
   mkdir -p /var/log/openxpki && chown -R openxpki:www-data /var/log/openxpki && chmod 0775 /var/log/openxpki && chmod 0664 /var/log/openxpki/*
@@ -58,21 +54,10 @@ function waitForRootDbConnection {
 }
 
 function create_config {
-
-  # Use custom configuration if available - otherwise the default
-  if [ -f "/etc/openxpki/customconfig.sh" ]; then
-     echo "Found custom configuration, securing and executing it."
-     chown root:root /etc/openxpki/customconfig.sh
-     chmod 700 /etc/openxpki/customconfig.sh
-     /etc/openxpki/customconfig.sh
-  elif [ -f "/usr/share/doc/libopenxpki-perl/examples/sampleconfig.sh" ]; then
-    echo "Found no custom customconfig.sh - using default sampleconfig.sh from /usr/share/doc/libopenxpki-perl/examples/sampleconfig.sh"
-    /usr/share/doc/libopenxpki-perl/examples/sampleconfig.sh
-  else
-    echo "Found no sampleconfig.sh and no customconfig.sh"
-    exit 1
-  fi
-  
+  /cfg/gwrs.sh
+  /cfg/gwcar.sh
+  /cfg/gwfm.sh
+  /cfg/rscar.sh  
 }
 
 function create_db {
@@ -144,6 +129,12 @@ if [ ! -d /etc/openxpki/config.d ]; then
   tar xzf /usr/share/doc/libopenxpki-perl/examples/openxpki-etc.tgz -C /etc
 fi
 
+cp -r /config/* /etc/openxpki/config.d
+cp /customconfig.sh /etc/openxpki/
+rm -rf /config
+rm /customconfig.sh
+rm -rf /etc/openxpki/realm/ca-one
+
 echo "Updating database.yml"
 if [ -n "${APP_DB_NAME}" ]; then echo "Replacing DB_NAME with given APP_DB_NAME: ${APP_DB_NAME}"; sed -i "s/name: .*/name: ${APP_DB_NAME}/" /etc/openxpki/config.d/system/database.yaml; fi
 if [ -n "${APP_DB_HOST}" ]; then echo "Replacing DB_HOST with given APP_DB_HOST: ${APP_DB_HOST}"; sed -i "s/host: .*/host: ${APP_DB_HOST}/" /etc/openxpki/config.d/system/database.yaml; fi
@@ -214,6 +205,7 @@ elif [ -z "$1" ]; then
     echo "Creating configuration files."
     echo "================================================"
     create_config
+    rm -rf /cfg
     echo "================================================"
     echo "Starting Servers"
     echo "================================================"

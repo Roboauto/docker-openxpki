@@ -1,0 +1,19 @@
+# This is the list of realms in this PKI
+# You only need to enable the realms which are visible on the server
+
+ca-gwrs:
+    label: Gateway - Remote Station realm
+    baseurl: http://192.168.168.103:80/openxpki/
+
+ca-gwcar:
+    label: Gateway - Car realm
+    baseurl: http://192.168.168.103:80/openxpki/
+
+ca-gwfm:
+    label: Gateway - Fleet Management realm
+    baseurl: http://192.168.168.103:80/openxpki/
+
+ca-rscar:
+    label: Remote Station - Car realm
+    baseurl: http://192.168.168.103:80/openxpki/
+

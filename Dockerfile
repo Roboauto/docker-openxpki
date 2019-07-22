@@ -5,7 +5,7 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y wget && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y vim wget && \
     wget http://packages.openxpki.org/debian/Release.key -O - | apt-key add - && \
     echo "deb http://packages.openxpki.org/debian/ jessie release" > /etc/apt/sources.list.d/openxpki.list && \
     echo "deb http://httpredir.debian.org/debian jessie non-free" >> /etc/apt/sources.list && \
@@ -28,10 +28,13 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ADD configs/apache2/mods-enabled/rpaf.conf /etc/apache2/mods-enabled/rpaf.conf
-
 ADD scripts/docker-entrypoint.sh /
 RUN chmod 755 /docker-entrypoint.sh
 
 VOLUME ["/etc/openxpki"]
-
+RUN mkdir /cfg
+ADD scripts/config.d/ /config
+ADD scripts/cfg/* /cfg/
+RUN chmod -R 755 /cfg/
+RUN chmod -R 755 /config
 ENTRYPOINT ["/docker-entrypoint.sh"]
