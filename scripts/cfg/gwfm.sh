@@ -41,16 +41,16 @@ PASS_SUFFIX='pass'
 BACKUP_SUFFIX='~'
 
 # root CA selfsigned (in production use company's root certificate)
-ROOT_CA='RoboAuto_CA-One_Root_CA'
+ROOT_CA='RoboAuto_CA-GWFM_Root_CA'
 ROOT_CA_REQUEST="${SSL_REALM}/${ROOT_CA}.${REQUEST_SUFFIX}"
 ROOT_CA_KEY="${SSL_REALM}/${ROOT_CA}.${KEY_SUFFIX}"
 ROOT_CA_KEY_PASSWORD="${SSL_REALM}/${ROOT_CA}.${PASS_SUFFIX}"
 ROOT_CA_CERTIFICATE="${SSL_REALM}/${ROOT_CA}.${CERTIFICATE_SUFFIX}"
-ROOT_CA_SUBJECT='/CN=RoboAuto CA-One Root CA 1'
+ROOT_CA_SUBJECT='/CN=RoboAuto CA-GWFM Root CA 1'
 ROOT_CA_SERVER_FQDN='rootca.roboauto.cz'
 
 # issuing CA signed by root CA above
-ISSUING_CA='RoboAuto_CA-One_Issuing_CA'
+ISSUING_CA='RoboAuto_CA-GWFM_Issuing_CA'
 ISSUING_CA_REQUEST="${SSL_REALM}/${ISSUING_CA}.${REQUEST_SUFFIX}"
 ISSUING_CA_KEY="${SSL_REALM}/${ISSUING_CA}.${KEY_SUFFIX}"
 ISSUING_CA_KEY_PASSWORD="${SSL_REALM}/${ISSUING_CA}.${PASS_SUFFIX}"
@@ -58,15 +58,15 @@ ISSUING_CA_CERTIFICATE="${SSL_REALM}/${ISSUING_CA}.${CERTIFICATE_SUFFIX}"
 ISSUING_CA_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwfm/CN=RoboAuto Issuing CA 1'
 
 # SCEP registration authority certificate signed by root CA above
-SCEP='RoboAuto_CA-One_SCEP_RA'
+SCEP='RoboAuto_CA-GWFM_SCEP_RA'
 SCEP_REQUEST="${SSL_REALM}/${SCEP}.${REQUEST_SUFFIX}"
 SCEP_KEY="${SSL_REALM}/${SCEP}.${KEY_SUFFIX}"
 SCEP_KEY_PASSWORD="${SSL_REALM}/${SCEP}.${PASS_SUFFIX}"
 SCEP_CERTIFICATE="${SSL_REALM}/${SCEP}.${CERTIFICATE_SUFFIX}"
-SCEP_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwfm/CN=RoboAuto CA-One SCEP RA 1'
+SCEP_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwfm/CN=RoboAuto CA-GWFM SCEP RA 1'
 
 # Apache WEB certificate signed by root CA above
-WEB='RoboAuto_CA-One_Web_CA'
+WEB='RoboAuto_CA-GWFM_Web_CA'
 WEB_REQUEST="${SSL_REALM}/${WEB}.${REQUEST_SUFFIX}"
 WEB_KEY="${SSL_REALM}/${WEB}.${KEY_SUFFIX}"
 WEB_KEY_PASSWORD="${SSL_REALM}/${WEB}.${PASS_SUFFIX}"
@@ -75,12 +75,12 @@ WEB_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwfm/CN=issuing.ca-gwfm.roboauto.cz'
 WEB_SERVER_FQDN='issuing.ca-gwfm.roboauto.cz'
 
 # data vault certificate selfsigned
-DATAVAULT='RoboAuto_CA-One_DataVault'
+DATAVAULT='RoboAuto_CA-GWFM_DataVault'
 DATAVAULT_REQUEST="${SSL_REALM}/${DATAVAULT}.${REQUEST_SUFFIX}"
 DATAVAULT_KEY="${SSL_REALM}/${DATAVAULT}.${KEY_SUFFIX}"
 DATAVAULT_KEY_PASSWORD="${SSL_REALM}/${DATAVAULT}.${PASS_SUFFIX}"
 DATAVAULT_CERTIFICATE="${SSL_REALM}/${DATAVAULT}.${CERTIFICATE_SUFFIX}"
-DATAVAULT_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwfm/DC=RoboAuto Internal/CN=RoboAuto CA-One DataVault'
+DATAVAULT_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwfm/DC=RoboAuto Internal/CN=RoboAuto CA-GWFM DataVault'
 
 #
 # openssl.conf
@@ -95,7 +95,7 @@ DDAYS="$RDAYS" # 10 years datavault (same a root)
 
 # used by v3 extension for issuing ca certificate
 ROOT_CA_HTTP_URI="URI:http://${ROOT_CA_SERVER_FQDN}/CertEnroll"
-ROOT_CA_CERTIFICATE_STRING="RoboAuto_CA-One_Root_CA"
+ROOT_CA_CERTIFICATE_STRING="RoboAuto_CA-GWFM_Root_CA"
 ROOT_CA_CERTIFICATE_URI="${ROOT_CA_HTTP_URI}/${ROOT_CA_CERTIFICATE_STRING}.${CERTIFICATE_SUFFIX}"
 ROOT_CA_REVOCATION_URI="${ROOT_CA_HTTP_URI}/${ROOT_CA_CERTIFICATE_STRING}.${REVOCATION_SUFFIX}"
 

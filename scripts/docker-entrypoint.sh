@@ -58,6 +58,8 @@ function create_config {
   /cfg/gwcar.sh
   /cfg/gwfm.sh
   /cfg/rscar.sh  
+  rm -rf /cfg
+  rm -rf /etc/openxpki/ssl/ca-one
 }
 
 function create_db {
@@ -130,10 +132,8 @@ if [ ! -d /etc/openxpki/config.d ]; then
 fi
 
 cp -r /config/* /etc/openxpki/config.d
-cp /customconfig.sh /etc/openxpki/
 rm -rf /config
-rm /customconfig.sh
-rm -rf /etc/openxpki/realm/ca-one
+rm -rf /etc/openxpki/config.d/realm/ca-one
 
 echo "Updating database.yml"
 if [ -n "${APP_DB_NAME}" ]; then echo "Replacing DB_NAME with given APP_DB_NAME: ${APP_DB_NAME}"; sed -i "s/name: .*/name: ${APP_DB_NAME}/" /etc/openxpki/config.d/system/database.yaml; fi
@@ -205,7 +205,6 @@ elif [ -z "$1" ]; then
     echo "Creating configuration files."
     echo "================================================"
     create_config
-    rm -rf /cfg
     echo "================================================"
     echo "Starting Servers"
     echo "================================================"
