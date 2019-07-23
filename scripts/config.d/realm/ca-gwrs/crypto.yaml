@@ -53,12 +53,6 @@ token:
 
 # Define the secret groups
 secret:
-  default:
-    label: Default secret group of this realm
-    export: 1
-    method: plain
-#    value: root
-    cache: daemon
   issuer-secret:
     label: issuer secret
     method: plain
