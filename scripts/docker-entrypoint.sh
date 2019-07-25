@@ -135,6 +135,9 @@ cp -r /config/* /etc/openxpki/config.d
 rm -rf /config
 rm -rf /etc/openxpki/config.d/realm/ca-one
 
+# add to ld_lib_path
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib64/
+
 echo "Updating database.yml"
 if [ -n "${APP_DB_NAME}" ]; then echo "Replacing DB_NAME with given APP_DB_NAME: ${APP_DB_NAME}"; sed -i "s/name: .*/name: ${APP_DB_NAME}/" /etc/openxpki/config.d/system/database.yaml; fi
 if [ -n "${APP_DB_HOST}" ]; then echo "Replacing DB_HOST with given APP_DB_HOST: ${APP_DB_HOST}"; sed -i "s/host: .*/host: ${APP_DB_HOST}/" /etc/openxpki/config.d/system/database.yaml; fi
