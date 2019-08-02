@@ -82,6 +82,14 @@ DATAVAULT_KEY_PASSWORD="${SSL_REALM}/${DATAVAULT}.${PASS_SUFFIX}"
 DATAVAULT_CERTIFICATE="${SSL_REALM}/${DATAVAULT}.${CERTIFICATE_SUFFIX}"
 DATAVAULT_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwcar/DC=RoboAuto Internal/CN=RoboAuto CA-GWCAR DataVault'
 
+# OCSP
+OCSP='RoboAuto_CA-GWCAR_OCSP'
+OCSP_REQUEST="${SSL_REALM}/${OCSP}.${REQUEST_SUFFIX}"
+OCSP_KEY="${SSL_REALM}/${OCSP}.${KEY_SUFFIX}"
+OCSP_KEY_PASSWORD="${SSL_REALM}/${OCSP}.${PASS_SUFFIX}"
+OCSP_CERTIFICATE="${SSL_REALM}/${OCSP}.${CERTIFICATE_SUFFIX}"
+OCSP_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwcar/DC=RoboAuto Internal/CN=RoboAuto CA-GWCAR OCSP'
+
 #
 # openssl.conf
 #
@@ -92,6 +100,7 @@ IDAYS="1828" # 5 years for issuing
 SDAYS="$IDAYS" # 5 years for scep (same as issuing)
 WDAYS="1096" # 3 years web
 DDAYS="$RDAYS" # 10 years datavault (same a root)
+ODAYS="1828" # 5 years for OCSP
 
 # used by v3 extension for issuing ca certificate
 ROOT_CA_HTTP_URI="URI:http://${ROOT_CA_SERVER_FQDN}/CertEnroll"
@@ -138,7 +147,7 @@ crl			= ${OPENSSL_DIR}/crl.pem
 private_key		= ${OPENSSL_DIR}/cakey.pem
 RANDFILE		= ${OPENSSL_DIR}/.rand
 
-default_md		= sha256
+default_md		= sha512
 preserve		= no
 policy			= policy_none
 default_days		= ${DAYS}
@@ -148,6 +157,7 @@ default_days		= ${DAYS}
 # x509_extensions               = v3_datavault_extensions
 # x509_extensions               = v3_scep_extensions
 # x509_extensions               = v3_web_extensions
+# x509_extensions               = v3_ocsp_extensions
 
 [policy_none]
 domainComponent		= optional
@@ -184,6 +194,10 @@ subjectKeyIdentifier    = hash
 keyUsage                = critical, digitalSignature, keyEncipherment
 extendedKeyUsage        = serverAuth, clientAuth
 
+[ v3_ocsp_reqexts ]
+subjectKeyIdentifier    = hash
+keyUsage                = nonRepudiation, digitalSignature, keyEncipherment
+extendedKeyUsage        = OCSPSigning
 
 [ v3_ca_extensions ]
 subjectKeyIdentifier    = hash
@@ -211,6 +225,13 @@ subjectKeyIdentifier    = hash
 basicConstraints        = CA:FALSE
 authorityKeyIdentifier  = keyid,issuer
 
+[ v3_ocsp_extensions ]
+subjectKeyIdentifier    = hash
+basicConstraints = CA:FALSE
+keyUsage = nonRepudiation, digitalSignature, keyEncipherment
+authorityKeyIdentifier  = keyid:always,issuer
+extendedKeyUsage = OCSPSigning
+
 [ v3_web_extensions ]
 subjectKeyIdentifier    = hash
 keyUsage                = critical, digitalSignature, keyEncipherment
@@ -237,7 +258,7 @@ then
    test -f "${ROOT_CA_KEY_PASSWORD}" && \
     mv "${ROOT_CA_KEY_PASSWORD}" "${ROOT_CA_KEY_PASSWORD}${BACKUP_SUFFIX}"
    make_password "${ROOT_CA_KEY_PASSWORD}"
-   openssl req -verbose -config "${OPENSSL_CONF}" -extensions v3_ca_extensions -batch -x509 -newkey rsa:$BITS -days ${RDAYS} -passout file:"${ROOT_CA_KEY_PASSWORD}" -keyout "${ROOT_CA_KEY}" -subj "${ROOT_CA_SUBJECT}" -out "${ROOT_CA_CERTIFICATE}"
+   openssl req -verbose -config "${OPENSSL_CONF}" -extensions v3_ca_extensions -batch -x509 -newkey ec:<(openssl ecparam -name secp521r1) -days ${RDAYS} -passout file:"${ROOT_CA_KEY_PASSWORD}" -keyout "${ROOT_CA_KEY}" -subj "${ROOT_CA_SUBJECT}" -out "${ROOT_CA_CERTIFICATE}"
    echo "done."
 fi
 
@@ -300,7 +321,7 @@ then
    test -f "${SCEP_REQUEST}" && \
     mv "${SCEP_REQUEST}" "${SCEP_REQUEST}${BACKUP_SUFFIX}"
    make_password "${SCEP_KEY_PASSWORD}"
-   openssl req -verbose -config "${OPENSSL_CONF}" -reqexts v3_scep_reqexts -batch -newkey rsa:$BITS -passout file:"${SCEP_KEY_PASSWORD}" -keyout "${SCEP_KEY}" -subj "${SCEP_SUBJECT}" -out "${SCEP_REQUEST}"
+   openssl req -verbose -config "${OPENSSL_CONF}" -reqexts v3_scep_reqexts -batch -newkey ec:<(openssl ecparam -name secp521r1) -passout file:"${SCEP_KEY_PASSWORD}" -keyout "${SCEP_KEY}" -subj "${SCEP_SUBJECT}" -out "${SCEP_REQUEST}"
    echo "done."
    echo -n "Signing SCEP certificate with Issuing CA .. "
    test -f "${SCEP_CERTIFICATE}" && \
@@ -317,12 +338,29 @@ then
    test -f "${WEB_REQUEST}" && \
     mv "${WEB_REQUEST}" "${WEB_REQUEST}${BACKUP_SUFFIX}"
    make_password "${WEB_KEY_PASSWORD}"
-   openssl req -verbose -config "${OPENSSL_CONF}" -reqexts v3_web_reqexts -batch -newkey rsa:$BITS -passout file:"${WEB_KEY_PASSWORD}" -keyout "${WEB_KEY}" -subj "${WEB_SUBJECT}" -out "${WEB_REQUEST}"
+   openssl req -verbose -config "${OPENSSL_CONF}" -reqexts v3_web_reqexts -batch -newkey ec:<(openssl ecparam -name secp521r1) -passout file:"${WEB_KEY_PASSWORD}" -keyout "${WEB_KEY}" -subj "${WEB_SUBJECT}" -out "${WEB_REQUEST}"
    echo "done."
    echo -n "Signing Web certificate with Issuing CA .. "
    test -f "${WEB_CERTIFICATE}" && \
     mv "${WEB_CERTIFICATE}" "${WEB_CERTIFICATE}${BACKUP_SUFFIX}"
    openssl ca -config "${OPENSSL_CONF}" -extensions v3_web_extensions -batch -days ${WDAYS} -in "${WEB_REQUEST}" -cert "${ISSUING_CA_CERTIFICATE}" -passin file:"${ISSUING_CA_KEY_PASSWORD}" -keyfile "${ISSUING_CA_KEY}" -out "${WEB_CERTIFICATE}"
+   echo "done."
+fi
+
+# OCSP certificate
+if [ ! -e "${OCSP_KEY}" ]
+then
+   echo "Did not find existing OCSP certificate file."
+   echo -n "Creating a OCSP CSR .. "
+   test -f "${OCSP_KEY_REQUEST}" && \
+    mv "${OCSP_REQUEST}" "${OCSP_REQUEST}${BACKUP_SUFFIX}"
+   make_password "${OCSP_KEY_PASSWORD}"
+   openssl req -verbose -config "${OPENSSL_CONF}" -reqexts v3_ocsp_reqexts -batch -newkey ec:<(openssl ecparam -name secp521r1) -passout file:"${OCSP_KEY_PASSWORD}" -keyout "${OCSP_KEY}" -subj "${OCSP_SUBJECT}" -out "${OCSP_REQUEST}"
+   echo "done."
+   echo -n "Signing OCSP certificate with Issuing CA .. "
+   test -f "${OCSP_CERTIFICATE}" && \
+    mv "${OCSP_CERTIFICATE}" "${OCSP_CERTIFICATE}${BACKUP_SUFFIX}"
+   openssl ca -config "${OPENSSL_CONF}" -extensions v3_ocsp_extensions -batch -days ${ODAYS} -in "${OCSP_REQUEST}" -cert "${ISSUING_CA_CERTIFICATE}" -passin file:"${ISSUING_CA_KEY_PASSWORD}" -keyfile "${ISSUING_CA_KEY}" -out "${OCSP_CERTIFICATE}"
    echo "done."
 fi
 
@@ -345,6 +383,7 @@ openxpkiadm certificate import --file "${ROOT_CA_CERTIFICATE}"
 openxpkiadm certificate import --file "${ISSUING_CA_CERTIFICATE}" --realm "${REALM}" --token certsign
 openxpkiadm certificate import --file "${SCEP_CERTIFICATE}" --realm "${REALM}" --token scep
 openxpkiadm certificate import --file "${DATAVAULT_CERTIFICATE}" --realm "${REALM}" --token datasafe
+openxpkiadm certificate import --file "${OCSP_CERTIFICATE}" --realm "${REALM}" --token ocsp
 
 # Create symlinks for the aliases used by the default config
 ln -s "${ISSUING_CA_KEY}" "${SSL_REALM}/ca-gwcar-signer-1.pem"

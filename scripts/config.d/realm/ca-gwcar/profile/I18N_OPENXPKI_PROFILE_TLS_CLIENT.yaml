@@ -1,14 +1,14 @@
 # The name of the file equals the name of the profile
 
-label: I18N_OPENXPKI_UI_PROFILE_TLS_CLIENT_LABEL
+label: "Car"
 
 validity:
     notafter: +01
 
 style:
     00_basic_style:
-        label: I18N_OPENXPKI_UI_PROFILE_TLS_CLIENT_BASIC_LABEL
-        description: I18N_OPENXPKI_UI_PROFILE_TLS_CLIENT_BASIC_DESC
+        label: "CarBasicStyle"
+        description: "A default profile for creating Car certificates"
         ui:
             subject:
                 - hostname
@@ -21,7 +21,7 @@ style:
                 - comment
 
         subject:
-            dn: CN=[% hostname %]:[% application_name %],DC=Test Deployment,DC=OpenXPKI,DC=org
+            dn: CN=[% hostname %]:[% application_name %],DC=Test Deployment,DC=RoboAuto,DC=org
 
         metadata:
             requestor: "[% requestor_gname %] [% requestor_name %]"
@@ -30,7 +30,7 @@ style:
 
     enroll:
         subject:
-            dn: CN=[% serial %],DC=Test Deployment,DC=OpenXPKI,DC=org
+            dn: CN=[% serial %],DC=Test Deployment,DC=RoboAuto,DC=org
 
 
 # Profile extensions - set 0/1 as needed
