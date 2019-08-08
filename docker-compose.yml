@@ -12,12 +12,16 @@ web:
   restart: always
   ports:
     - "127.0.0.1:8080:80"
+    - "9876:9876"
+    - "8888:443"
   links:
     - db:mysql
   volumes:
     - ./config:/etc/openxpki
     - ./logs/apache2:/var/log/apache2
     - ./logs/openxpki:/var/log/openxpki
+    - ./logs/ocspd:/var/log/ocspd
+    - ./ocspd-config/config-dir:/usr/etc/ocsp
   environment:
     - APP_DB_NAME=openxpki
     - APP_DB_USER=openxpki

@@ -1,18 +1,17 @@
 # The name of the file equals the name of the profile
 
-label: I18N_OPENXPKI_UI_PROFILE_TLS_CLIENT_LABEL
+label: "Fleet Management"
 
 validity:
     notafter: +01
 
 style:
     00_basic_style:
-        label: I18N_OPENXPKI_UI_PROFILE_TLS_CLIENT_BASIC_LABEL
-        description: I18N_OPENXPKI_UI_PROFILE_TLS_CLIENT_BASIC_DESC
+        label: "FleetManagement Basic Style"
+        description: "A default profile for creating Fleet Management certificates"
         ui:
             subject:
-                - hostname
-                - application_name
+                - fm_identifier
             info:
                 - requestor_gname
                 - requestor_name
@@ -21,16 +20,16 @@ style:
                 - comment
 
         subject:
-            dn: CN=[% hostname %]:[% application_name %],DC=Test Deployment,DC=OpenXPKI,DC=org
+            dn: CN=[% fm_identifier %],DC=Test Deployment,DC=RoboAuto,DC=org
 
         metadata:
             requestor: "[% requestor_gname %] [% requestor_name %]"
             email: "[% requestor_email %]"
-            entity: "[% hostname FILTER lower %]"
+            entity: "[% fm_identifier FILTER lower %]"
 
     enroll:
         subject:
-            dn: CN=[% serial %],DC=Test Deployment,DC=OpenXPKI,DC=org
+            dn: CN=[% serial %],DC=Test Deployment,DC=RoboAuto,DC=org
 
 
 # Profile extensions - set 0/1 as needed

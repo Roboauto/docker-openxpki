@@ -51,14 +51,14 @@ connectors:
 
     cdp:
         class: Connector::Builtin::File::Path
-        LOCATION: /tmp/
-        file: "[% ARGS.0 %].pem"
+        LOCATION: /var/www/secure/ca-gwfm/
+        file: "crl.pem"
         content: "[% pem %]"
 
 
     cacert:
         class: Connector::Builtin::File::Path
         LOCATION: /tmp/
-        file: "[% ARGS.0 %].pem"
+        file: "[% ARGS.0 %]_CA.pem"
         content: "[% pem %]"
 

@@ -9,26 +9,15 @@
 key:
     # Supported key algorithms (details need to be defined below!)
     alg:
-      - rsa
       - ec
-      - dsa
 
     # Supported encryption algorithms (as taken by openssl)
     enc:
       - aes256
-      - _3des
-      - idea
 
     # one of escrow, server, client, both
     # escrow is not implemented in workflows, yet!
     generate: both
-
-    # Definition of key algorithms
-    rsa:
-        key_length:
-          - 2048
-          - 4096
-          - _1024
 
     ec:
         # those names are used for validation and to render the
@@ -38,9 +27,9 @@ key:
         # by Crypt::PKCS10 at the moment. For NIST P-192/256 you can use
         # either the secpXXXr1 or primeXXXv1 alias
         curve_name:
-          - prime256v1
-          - secp384r1
           - secp521r1
+          - secp384r1
+
 
         # Curves imply key lengths, setting key length here makes only
         # sense if you do NOT set curve names and want to allow all
@@ -52,11 +41,6 @@ key:
         #  - _192
         #  - _256
 
-    dsa:
-        key_length:
-          - 2048
-          - 4096
-
     # I18N_OPENXPKI_UI_KEY_ALG_GOST94
 #    gost94:
     # I18N_OPENXPKI_UI_KEY_ALG_GOST2001
@@ -66,7 +50,7 @@ key:
 validity:
     notafter: +01
 
-digest: sha256
+digest: sha512
 increasing_serials: 1
 randomized_serial_bytes: 8
 
@@ -102,45 +86,13 @@ extensions:
     crl_distribution_points:
         critical: 0
         uri:
-            - http://localhost/crl/[% ISSUER.CN.0 %].pem
-            - ldap://localhost/[% ISSUER.DN %]
+            - http://teleop.roboauto.cz/ca-gwfm/crl.pem
+       #     - ldap://teleop.roboauto.cz/[% ISSUER.DN %]
 
     authority_info_access:
         critical: 0
-        ca_issuers: http://localhost/cacert.crt
-        ocsp: http://ocsp.openxpki.org/
-
-    policy_identifier:
-        critical: 0
-        # you can combine both notations but do not use the same OID twice
-        # short notation, if you just need OIDs
-        oid: 1.2.3.5
-        # for OIDs with CPS/Notice, put the OID as key.
-        1.2.3.4:
-          # CPS/Notice can be scalar or list
-          cps:
-            - http://openxpki.org/cps.html
-            - http://openxpki.net/cps.html
-          user_notice: This is a comment for policy oid 1.2.3.4
-
-    netscape:
-        comment:
-            critical: 0
-            text: This is a generic certificate. Generated with OpenXPKI trustcenter software.
-        certificate_type:
-            critical: 0
-            ssl_client:        0
-            smime_client:      0
-            object_signing:    0
-            ssl_client_ca:     0
-            smime_client_ca:   0
-            object_signing_ca: 0
-
-        cdp:
-            critical: 0
-            uri: http://localhost/cacrl.crt
-            ca_uri: http://localhost/cacrl.crt
-     # end of netscape section
+        ca_issuers: http://teleop.roboauto.cz/ca-gwfm/chain.pem
+        ocsp: http://teleop.roboauto.cz:9876
 
 
 # I18N Placeholders for key settings

@@ -41,6 +41,14 @@ ADD configs/apache2/mods-enabled/rpaf.conf /etc/apache2/mods-enabled/rpaf.conf
 ADD scripts/docker-entrypoint.sh /
 RUN chmod 755 /docker-entrypoint.sh
 
+ADD web_security/tls_protection_web.conf /etc/apache2/sites-available/tls_protection_web.conf
+ADD web_security/WebCert.crt /etc/apache2/tls/WebCert.crt
+ADD web_security/WebCert_key.pem /etc/apache2/tls/WebCert_key.pem
+COPY web_security/openxpki.conf /etc/apache2/conf-available/openxpki.conf 
+COPY ocspd-config/config-dir/ocspd.xml /usr/etc/ocspd/ocspd.xml
+
+RUN cp /usr/lib64/* /usr/lib/
+
 VOLUME ["/etc/openxpki"]
 RUN mkdir /cfg
 ADD scripts/config.d/ /config
