@@ -19,6 +19,8 @@ else
 fi
 
 REALM='ca-gwcar'
+REALM_UPPER='CA-GWCAR'
+BASE_NAME='RoboAuto_CA-GWCAR'
 SSL_REALM="${BASE}/ssl/${REALM}"
 
 make_password() {
@@ -41,54 +43,54 @@ PASS_SUFFIX='pass'
 BACKUP_SUFFIX='~'
 
 # root CA selfsigned (in production use company's root certificate)
-ROOT_CA='RoboAuto_CA-GWCAR_Root_CA'
+ROOT_CA="${BASE_NAME}_Root_CA"
 ROOT_CA_REQUEST="${SSL_REALM}/${ROOT_CA}.${REQUEST_SUFFIX}"
 ROOT_CA_KEY="${SSL_REALM}/${ROOT_CA}.${KEY_SUFFIX}"
 ROOT_CA_KEY_PASSWORD="${SSL_REALM}/${ROOT_CA}.${PASS_SUFFIX}"
 ROOT_CA_CERTIFICATE="${SSL_REALM}/${ROOT_CA}.${CERTIFICATE_SUFFIX}"
-ROOT_CA_SUBJECT='/CN=RoboAuto CA-GWCAR Root CA 1'
-ROOT_CA_SERVER_FQDN='rootca.roboauto.cz'
+ROOT_CA_SUBJECT="/CN=RoboAuto ${REALM_UPPER} Root CA 1"
+ROOT_CA_SERVER_FQDN="rootca.${REALM}.roboauto.cz"
 
 # issuing CA signed by root CA above
-ISSUING_CA='RoboAuto_CA-GWCAR_Issuing_CA'
+ISSUING_CA="${BASE_NAME}_Issuing_CA"
 ISSUING_CA_REQUEST="${SSL_REALM}/${ISSUING_CA}.${REQUEST_SUFFIX}"
 ISSUING_CA_KEY="${SSL_REALM}/${ISSUING_CA}.${KEY_SUFFIX}"
 ISSUING_CA_KEY_PASSWORD="${SSL_REALM}/${ISSUING_CA}.${PASS_SUFFIX}"
 ISSUING_CA_CERTIFICATE="${SSL_REALM}/${ISSUING_CA}.${CERTIFICATE_SUFFIX}"
-ISSUING_CA_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwcar/CN=RoboAuto Issuing CA 1'
+ISSUING_CA_SUBJECT="/DC=net/DC=RoboAuto/DC=${REALM}/CN=RoboAuto Issuing CA 1"
 
 # SCEP registration authority certificate signed by root CA above
-SCEP='RoboAuto_CA-GWCAR_SCEP_RA'
+SCEP="${BASE_NAME}_SCEP_RA"
 SCEP_REQUEST="${SSL_REALM}/${SCEP}.${REQUEST_SUFFIX}"
 SCEP_KEY="${SSL_REALM}/${SCEP}.${KEY_SUFFIX}"
 SCEP_KEY_PASSWORD="${SSL_REALM}/${SCEP}.${PASS_SUFFIX}"
 SCEP_CERTIFICATE="${SSL_REALM}/${SCEP}.${CERTIFICATE_SUFFIX}"
-SCEP_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwcar/CN=RoboAuto CA-GWCAR SCEP RA 1'
+SCEP_SUBJECT="/DC=net/DC=RoboAuto/DC=${REALM}/CN=RoboAuto ${REALM_UPPER} SCEP RA 1"
 
 # Apache WEB certificate signed by root CA above
-WEB='RoboAuto_CA-GWCAR_Web_CA'
+WEB="${BASE_NAME}_Web_CA"
 WEB_REQUEST="${SSL_REALM}/${WEB}.${REQUEST_SUFFIX}"
 WEB_KEY="${SSL_REALM}/${WEB}.${KEY_SUFFIX}"
 WEB_KEY_PASSWORD="${SSL_REALM}/${WEB}.${PASS_SUFFIX}"
 WEB_CERTIFICATE="${SSL_REALM}/${WEB}.${CERTIFICATE_SUFFIX}"
-WEB_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwcar/CN=issuing.ca-gwcar.roboauto.cz'
-WEB_SERVER_FQDN='issuing.ca-gwcar.roboauto.cz'
+WEB_SUBJECT="/DC=net/DC=RoboAuto/DC=${REALM}/CN=issuing.${REALM}.roboauto.cz"
+WEB_SERVER_FQDN="issuing.${REALM}.roboauto.cz"
 
 # data vault certificate selfsigned
-DATAVAULT='RoboAuto_CA-GWCAR_DataVault'
+DATAVAULT="${BASE_NAME}_DataVault"
 DATAVAULT_REQUEST="${SSL_REALM}/${DATAVAULT}.${REQUEST_SUFFIX}"
 DATAVAULT_KEY="${SSL_REALM}/${DATAVAULT}.${KEY_SUFFIX}"
 DATAVAULT_KEY_PASSWORD="${SSL_REALM}/${DATAVAULT}.${PASS_SUFFIX}"
 DATAVAULT_CERTIFICATE="${SSL_REALM}/${DATAVAULT}.${CERTIFICATE_SUFFIX}"
-DATAVAULT_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwcar/DC=RoboAuto Internal/CN=RoboAuto CA-GWCAR DataVault'
+DATAVAULT_SUBJECT="/DC=net/DC=RoboAuto/DC=${REALM}/DC=RoboAuto Internal/CN=RoboAuto ${REALM_UPPER} DataVault"
 
 # OCSP
-OCSP='RoboAuto_CA-GWCAR_OCSP'
+OCSP="${BASE_NAME}_OCSP"
 OCSP_REQUEST="${SSL_REALM}/${OCSP}.${REQUEST_SUFFIX}"
 OCSP_KEY="${SSL_REALM}/${OCSP}.${KEY_SUFFIX}"
 OCSP_KEY_PASSWORD="${SSL_REALM}/${OCSP}.${PASS_SUFFIX}"
 OCSP_CERTIFICATE="${SSL_REALM}/${OCSP}.${CERTIFICATE_SUFFIX}"
-OCSP_SUBJECT='/DC=net/DC=RoboAuto/DC=ca-gwcar/DC=RoboAuto Internal/CN=RoboAuto CA-GWCAR OCSP'
+OCSP_SUBJECT="/DC=net/DC=RoboAuto/DC=${REALM}/DC=RoboAuto Internal/CN=RoboAuto ${REALM_UPPER} OCSP"
 
 #
 # openssl.conf
@@ -104,7 +106,7 @@ ODAYS="1828" # 5 years for OCSP
 
 # used by v3 extension for issuing ca certificate
 ROOT_CA_HTTP_URI="URI:http://${ROOT_CA_SERVER_FQDN}/CertEnroll"
-ROOT_CA_CERTIFICATE_STRING="RoboAuto_CA-GWCAR_Root_CA"
+ROOT_CA_CERTIFICATE_STRING="${BASE_NAME}_Root_CA"
 ROOT_CA_CERTIFICATE_URI="${ROOT_CA_HTTP_URI}/${ROOT_CA_CERTIFICATE_STRING}.${CERTIFICATE_SUFFIX}"
 ROOT_CA_REVOCATION_URI="${ROOT_CA_HTTP_URI}/${ROOT_CA_CERTIFICATE_STRING}.${REVOCATION_SUFFIX}"
 
@@ -258,7 +260,7 @@ then
    test -f "${ROOT_CA_KEY_PASSWORD}" && \
     mv "${ROOT_CA_KEY_PASSWORD}" "${ROOT_CA_KEY_PASSWORD}${BACKUP_SUFFIX}"
    make_password "${ROOT_CA_KEY_PASSWORD}"
-   openssl req -verbose -config "${OPENSSL_CONF}" -extensions v3_ca_extensions -batch -x509 -newkey ec:<(openssl ecparam -name secp521r1) -days ${RDAYS} -passout file:"${ROOT_CA_KEY_PASSWORD}" -keyout "${ROOT_CA_KEY}" -subj "${ROOT_CA_SUBJECT}" -out "${ROOT_CA_CERTIFICATE}"
+   openssl req -verbose -config "${OPENSSL_CONF}" -extensions v3_ca_extensions -batch -x509 -newkey rsa:$BITS -days ${RDAYS} -passout file:"${ROOT_CA_KEY_PASSWORD}" -keyout "${ROOT_CA_KEY}" -subj "${ROOT_CA_SUBJECT}" -out "${ROOT_CA_CERTIFICATE}"
    echo "done."
 fi
 
@@ -376,8 +378,6 @@ chown root:root ${SSL_REALM}/*.${REQUEST_SUFFIX} ${SSL_REALM}/*.${KEY_SUFFIX} ${
 chown root:${group} ${SSL_REALM}/*.${CERTIFICATE_SUFFIX} ${SSL_REALM}/*.${KEY_SUFFIX}
 
 echo -n "Starting import ... "
-echo "done."
-echo ""
 
 openxpkiadm certificate import --file "${ROOT_CA_CERTIFICATE}"
 openxpkiadm certificate import --file "${ISSUING_CA_CERTIFICATE}" --realm "${REALM}" --token certsign
@@ -385,10 +385,25 @@ openxpkiadm certificate import --file "${SCEP_CERTIFICATE}" --realm "${REALM}" -
 openxpkiadm certificate import --file "${DATAVAULT_CERTIFICATE}" --realm "${REALM}" --token datasafe
 openxpkiadm certificate import --file "${OCSP_CERTIFICATE}" --realm "${REALM}" --token ocsp
 
+echo "done."
+echo ""
+
+
+echo "Prepare certchain and first CRL..."
+mkdir /var/www/secure/${REALM}
+cat "${ROOT_CA_CERTIFICATE}" "${ISSUING_CA_CERTIFICATE}" > "/var/www/secure/${REALM}/chain.pem"
+cp "${ROOT_CA_CERTIFICATE}" "/var/www/secure/${REALM}/ca.pem"
+cp "${OCSP_CERTIFICATE}" "/var/www/secure/${REALM}/ocsp.pem" 
+openssl ca -gencrl -out "/var/www/secure/${REALM}/crl.pem" -keyfile "${ISSUING_CA_KEY}" -cert "${ISSUING_CA_CERTIFICATE}" --passin file:${ISSUING_CA_KEY_PASSWORD} -config "${OPENSSL_CONF}" -crldays 5
+chmod 777 -R "/var/www/secure/${REALM}/"
+echo "AddType application/octect-stream .pem" > "/var/www/secure/${REALM}/.htaccess"
+echo "done."
+echo ""
+
 # Create symlinks for the aliases used by the default config
-ln -s "${ISSUING_CA_KEY}" "${SSL_REALM}/ca-gwcar-signer-1.pem"
-ln -s "${SCEP_KEY}" "${SSL_REALM}/ca-gwcar-scep-1.pem"
-ln -s "${DATAVAULT_KEY}" "${SSL_REALM}/ca-gwcar-vault-1.pem"
+ln -s "${ISSUING_CA_KEY}" "${SSL_REALM}/${REALM}-signer-1.pem"
+ln -s "${SCEP_KEY}" "${SSL_REALM}/${REALM}-scep-1.pem"
+ln -s "${DATAVAULT_KEY}" "${SSL_REALM}/${REALM}-vault-1.pem"
 
 echo "Place web certificate, private key, ... in web server configuration to enable ssl on openxpki web pages!"
 echo ""

@@ -7,12 +7,11 @@ validity:
 
 style:
     00_basic_style:
-        label: "CarBasicStyle"
+        label: "Car Basic Style"
         description: "A default profile for creating Car certificates"
         ui:
             subject:
-                - hostname
-                - application_name
+                - car_identifier
             info:
                 - requestor_gname
                 - requestor_name
@@ -21,12 +20,12 @@ style:
                 - comment
 
         subject:
-            dn: CN=[% hostname %]:[% application_name %],DC=Test Deployment,DC=RoboAuto,DC=org
+            dn: CN=[% car_identifier %],DC=Test Deployment,DC=RoboAuto,DC=org
 
         metadata:
             requestor: "[% requestor_gname %] [% requestor_name %]"
             email: "[% requestor_email %]"
-            entity: "[% hostname FILTER lower %]"
+            entity: "[% car_identifier FILTER lower %]"
 
     enroll:
         subject:

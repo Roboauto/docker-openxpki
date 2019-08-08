@@ -8,7 +8,7 @@
       <pki:pkiConfigDir>/usr/etc/ocsp/pki</pki:pkiConfigDir>
       <!-- Name of the token configuration to be used for the server, check
            the libPKI documentations for more details -->
-      <pki:token>softwareCar</pki:token>
+      <pki:token>gwcar</pki:token>
       <!-- Directory containing all the configuration files for the supported
            CAs -->
       <pki:caConfigDir>/usr/etc/ocsp/ca.d/</pki:caConfigDir>
@@ -18,7 +18,7 @@
       <!-- Number of threads to be pre-spawned -->
       <pki:spawnThreads>10</pki:spawnThreads>
       <!-- Auto Reload Timeout (secs) -->;
-      <pki:crlAutoReload>10</pki:crlAutoReload>
+      <pki:crlAutoReload>600</pki:crlAutoReload>
       <!-- Reload Expired CRLs -->
       <pki:crlReloadExpired>yes</pki:crlReloadExpired>
       <!-- Check CRLs validity every x seconds -->

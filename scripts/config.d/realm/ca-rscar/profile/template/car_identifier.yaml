@@ -1,0 +1,8 @@
+id: car_identifier
+label: "Car Identifier"
+description: "Identifier of the car (name/number/...). It should match the name of the car used for connection to gateway"
+type: freetext
+preset: "[% CN.0.replace(':.*','') %]"
+match: \A [a-zA-Z0-9] [a-zA-Z0-9-]* (\.[a-zA-Z0-9-]*[a-zA-Z0-9])* \z
+width: 60
+default: "Teleperation Car"

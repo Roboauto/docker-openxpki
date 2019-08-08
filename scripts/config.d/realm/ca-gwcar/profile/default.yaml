@@ -27,8 +27,8 @@ key:
         # by Crypt::PKCS10 at the moment. For NIST P-192/256 you can use
         # either the secpXXXr1 or primeXXXv1 alias
         curve_name:
-          - secp384r1
           - secp521r1
+          - secp384r1
 
         # Curves imply key lengths, setting key length here makes only
         # sense if you do NOT set curve names and want to allow all
@@ -85,12 +85,12 @@ extensions:
     crl_distribution_points:
         critical: 0
         uri:
-            - http://teleop.roboauto.cz/crl/gw-car/[% ISSUER.CN.0 %].pem
+            - http://teleop.roboauto.cz/ca-gwcar/crl.pem
        #     - ldap://teleop.roboauto.cz/[% ISSUER.DN %]
 
     authority_info_access:
         critical: 0
-        ca_issuers: http://teleop.roboauto.cz/ca/gw-car/issuer.pem
+        ca_issuers: http://teleop.roboauto.cz/ca-gwcar/chain.pem
         ocsp: http://teleop.roboauto.cz:9876
 
 

@@ -51,8 +51,8 @@ connectors:
 
     cdp:
         class: Connector::Builtin::File::Path
-        LOCATION: /tmp/
-        file: "[% ARGS.0 %].pem"
+        LOCATION: /var/www/secure/ca-rscar/
+        file: "crl.pem"
         content: "[% pem %]"
 
 

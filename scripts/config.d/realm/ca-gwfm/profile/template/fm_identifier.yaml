@@ -1,0 +1,8 @@
+id: fm_identifier
+label: "Fleet Management Identifier"
+description: "Identifier of the FM (name/number/url/...)"
+type: freetext
+preset: "[% CN.0.replace(':.*','') %]"
+match: \A [a-zA-Z0-9] [a-zA-Z0-9-]* (\.[a-zA-Z0-9-]*[a-zA-Z0-9])* \z
+width: 60
+default: "Basic FM"

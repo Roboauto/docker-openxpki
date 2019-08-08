@@ -89,18 +89,28 @@ function init_db {
   # Extract sql file and install database shema
   zcat /usr/share/doc/libopenxpki-perl/examples/schema-mysql.sql.gz | \
     mysql -u ${APP_DB_USER} -p${APP_DB_PASS} -D ${APP_DB_NAME} -h ${APP_DB_HOST} -P ${APP_DB_PORT}
+}
 
+function make_ssl_symlinks {
+   ln -s /etc/apache2/mods-available/ssl.conf /etc/apache2/mods-enabled/ssl.conf
+   ln -s /etc/apache2/mods-available/ssl.load /etc/apache2/mods-enabled/ssl.load
+   ln -s /etc/apache2/mods-available/socache_shmcb.load /etc/apache2/mods-enabled/socache_shmcb.load
+   ln -s /etc/apache2/sites-available/tls_protection_web.conf /etc/apache2/sites-enabled/tls_protection_web.conf 
+}
+
+function init_web {
+  mkdir /var/www/secure
+  mv /var/www/openxpki /var/www/secure/openxpki 
+  make_ssl_symlinks
 }
 
 function run_server {
-
   unset APP_DB_ROOT_PASS APP_DB_PASS
 
   # openxpkictl start --foreground is not working
   openxpkictl start
 
   apache2ctl -DFOREGROUND
-
 }
 
 # Check for linked MYSQL container
@@ -146,6 +156,10 @@ if [ -n "${APP_DB_USER}" ]; then echo "Replacing DB_USER with given APP_DB_USER:
 if [ -n "${APP_DB_PASS}" ]; then echo "Replacing DB_PASS with given APP_DB_PASS: ${APP_DB_PASS}"; sed -i "s/passwd: .*/passwd: ${APP_DB_PASS}/" /etc/openxpki/config.d/system/database.yaml; fi
 
 fixPermissions
+
+  if [ ! -d "/var/www/secure" ]; then
+    init_web
+  fi
 
 # Start depending on parameters
 if [ "$1" == "create_db" ]; then
@@ -211,6 +225,7 @@ elif [ -z "$1" ]; then
     echo "================================================"
     echo "Starting Servers"
     echo "================================================"
+    nohup ocspd -d -c "/usr/etc/ocsp/ocspd.xml" -stdout -debug >> /var/log/ocspd/ocsp.log 2>&1 &
     run_server
   else
     echo "================================================"
