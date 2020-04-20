@@ -1,29 +1,44 @@
-db:
-  image: mysql:5.5
-  restart: always
-  volumes:
-    - ./mysql-data:/var/lib/mysql
-  environment:
-    - MYSQL_ROOT_PASSWORD=my-super-secret-password
-web:
-  image: dime/openxpki:latest
-  dns: 8.8.8.8
-  hostname: pki.example.org
-  restart: always
-  ports:
-    - "127.0.0.1:8080:80"
-    - "9876:9876"
-    - "8888:443"
-  links:
-    - db:mysql
-  volumes:
-    - ./config:/etc/openxpki
-    - ./logs/apache2:/var/log/apache2
-    - ./logs/openxpki:/var/log/openxpki
-    - ./logs/ocspd:/var/log/ocspd
-    - ./ocspd-config/config-dir:/usr/etc/ocsp
-  environment:
-    - APP_DB_NAME=openxpki
-    - APP_DB_USER=openxpki
-    - APP_DB_PASS=openxpki
-    - APP_DB_ROOT_PASS=my-super-secret-password
+version: "3.2"
+
+services:
+  db:
+    image: mysql:5.5
+    restart: always
+    networks:
+      - backend    
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=my-super-secret-password
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    dns: 8.8.8.8
+    hostname: teleop.roboauto.cz
+    restart: always
+    ports:
+      - "127.0.0.1:8080:80"
+      - "9876:9876"
+      - "443:443"
+    networks:
+      - backend
+    volumes:
+      - ./config:/etc/openxpki
+      - ./logs/apache2:/var/log/apache2
+      - ./logs/openxpki:/var/log/openxpki
+      - ./logs/ocspd:/var/log/ocspd
+      - ./ocspd-config/config-dir:/usr/etc/ocsp
+      - ./web_security:/etc/apache2/tls/
+    environment:
+      - APP_DB_HOST=db
+      - APP_DB_PORT=3306
+      - APP_DB_NAME=openxpki
+      - APP_DB_USER=openxpki
+      - APP_DB_PASS=openxpki
+      - APP_DB_ROOT_PASS=my-super-secret-password
+
+networks:
+    backend:
+      driver: bridge
